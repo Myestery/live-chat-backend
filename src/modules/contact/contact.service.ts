@@ -22,17 +22,21 @@ export class ContactService {
     // if not, throw error
     let user1: IUser = await this.UserModel.findById(userId);
     let user = await this.UserModel.findOne({
-      email: createContactDto.email,
+      email: createContactDto.email.toLowerCase(),
       _id: { $ne: userId },
     });
     if (user) {
       // create conversation first
-      
-      let contact = { ...createContactDto, user_id: user._id };
+      let conversation = new this.ConversationModel({
+        members: [userId, user._id],
+      });
+      await conversation.save();
+      let contact = { ...createContactDto, user_id: user._id, conversation_id: conversation._id };
       let contact2 = {
         name: user1.name.firstname + ' ' + user1.name.lastname,
         email: user1.email,
         user_id: userId,
+        conversation_id: conversation._id,
       };
       await this.UserModel.updateOne(
         { $and: [{ _id: userId }, { contacts: { $ne: contact } }] },

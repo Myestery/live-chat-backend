@@ -16,7 +16,7 @@ export class Conversation {
     ref: 'User',
   })
   members: Array<mongoose.Schema.Types.ObjectId> | Array<IUser>;
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Chat' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Chat' })
   last_message: string | { message: string };
 }
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);

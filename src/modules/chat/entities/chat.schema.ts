@@ -29,5 +29,8 @@ export class Chat {
 
   @Prop({ required: false, default: 'text' })
   media_type: string;
+
+  @Prop({ required: false, default: [] })
+  read_by: string[];
 }
 export const ChatSchema = SchemaFactory.createForClass(Chat);

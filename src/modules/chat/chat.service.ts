@@ -1,15 +1,17 @@
 import { CreateChatDto } from './dto/create-chat.dto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { Chat, ChatDocument } from './entities/chat.schema';
 import {
-  Conversation,
   ConversationDocument,
   IConversation,
+  Conversation,
 } from './entities/conversation.schema';
 import { IUser } from '../user/user.interface';
+import { User, UserDocument } from '../user/entities/user.schema';
 
 @Injectable()
 export class ChatService {
@@ -18,6 +20,8 @@ export class ChatService {
     private chatModel: Model<ChatDocument>,
     @InjectModel(Conversation.name)
     private conversationModel: Model<ConversationDocument>,
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
   ) {}
   create(createChatDto: CreateChatDto) {
     return [];
@@ -51,7 +55,7 @@ export class ChatService {
     // console.log(conversations);
     return conversations.map((conversation) => {
       const otherMember = (conversation.members as Array<IUser>).find(
-        (member) => member._id != userId,
+        (member) => String(member._id) != String(userId),
       );
       return {
         ...conversation.toJSON(),
@@ -62,5 +66,45 @@ export class ChatService {
         members: undefined,
       };
     });
+  }
+
+  async getUserDetails(id: string, myId: string): Promise<IUser> {
+    let conversation = await this.conversationModel.findById<IConversation>(id);
+    let userId = (conversation.members as Array<unknown>).find(
+      (member) => String(member) != String(myId),
+    );
+    const user = await this.userModel
+      .findById(userId)
+      .select('name image_url')
+      .exec();
+    if (!user) throw new HttpException('User not found', 404);
+    let name = user.toJSON().name;
+    return { ...user.toJSON(), ...name } as IUser;
+  }
+
+  async readConversation(id: string, user_id: string) {
+    // update all chats , add user_id to read_by array
+    await this.chatModel.updateMany(
+      { conversation_id: id, read_by: { $ne: user_id } },
+      { $addToSet: { read_by: user_id } },
+    );
+  }
+
+  async getUserConversations(id: string, user_id: string) {
+    const conversation = await this.conversationModel.find({
+      members: { $in: [user_id] },
+      _id: id,
+    });
+    if (!conversation) throw new HttpException('Conversation not found', 404);
+    let chats = await this.chatModel
+      .find(
+        { conversation_id: id },
+        {
+          limit: 20,
+          sort: { createdAt: -1 },
+        },
+      )
+      .exec();
+    return chats.reverse();
   }
 }
