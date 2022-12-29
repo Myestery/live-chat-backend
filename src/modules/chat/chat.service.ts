@@ -79,7 +79,7 @@ export class ChatService {
       .exec();
     if (!user) throw new HttpException('User not found', 404);
     let name = user.toJSON().name;
-    return { ...user.toJSON(), ...name } as IUser;
+    return { ...user.toJSON(), ...name, conversation_id: id } as IUser;
   }
 
   async readConversation(id: string, user_id: string) {
@@ -97,14 +97,45 @@ export class ChatService {
     });
     if (!conversation) throw new HttpException('Conversation not found', 404);
     let chats = await this.chatModel
-      .find(
-        { conversation_id: id },
-        {
-          limit: 20,
-          sort: { createdAt: -1 },
-        },
-      )
+      .find({ conversation_id: id })
+      .sort({ created_at: -1 })
       .exec();
     return chats.reverse();
   }
+
+  async sendMessage(
+    id: string,
+    body: CreateChatDto,
+    user_id: string,
+  ): Promise<Chat> {
+    const conversation = await this.conversationModel
+      .findOne({
+        members: { $in: [user_id] },
+        _id: id,
+      })
+      .exec();
+    if (!conversation) throw new HttpException('Conversation not found', 404);
+    // check if user is part of conversation
+    const chat = await this.chatModel.create({
+      ...body,
+      conversation_id: id,
+      sender: user_id,
+      message: body.text,
+    });
+    conversation.last_message = chat._id;
+    await conversation.save();
+    return chat;
+  }
 }
+
+// @Prop({ required: false, type: Boolean, default: false })
+// is_file: boolean;
+
+// @Prop({ required: false, type: String })
+// file_url: string;
+
+// @Prop({ required: false, default: 'text' })
+// media_type: string;
+
+// @Prop({ required: false, default: [] })
+// read_by: string[];

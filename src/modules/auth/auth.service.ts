@@ -1,4 +1,4 @@
-import { Firebase } from '../firebase/providers/firebase';
+// import { Firebase } from '../firebase/providers/firebase';
 import { IUser } from '../user/user.interface';
 import { Injectable, Logger } from '@nestjs/common';
 import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -20,13 +20,13 @@ let pass = process.env.JWT_SECRET_KEY;
 @Injectable()
 export class AuthService {
   constructor(
-    private firebase: Firebase,
+    // private firebase: Firebase,
     private jwtService: JwtService,
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
   ) {}
 
   updatePassword(updatePasswordDto: UpdatePasswordDto, uid: string) {
-    return this.firebase.changePassword(uid, updatePasswordDto.password);
+    // return this.firebase.changePassword(uid, updatePasswordDto.password);
   }
 
   async findOne(email: string, getPassword: boolean = false): Promise<IUser> {

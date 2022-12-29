@@ -6,7 +6,7 @@ import {
   Patch,
   Param,
   Delete,
-  Put
+  Put,
 } from '@nestjs/common';
 import { User } from 'src/common/decorators/user.decorator';
 import { IUser } from '../user/user.interface';
@@ -29,7 +29,7 @@ export class ChatController {
   }
 
   @Get('/user-details/:id')
-  getUserDetails(@Param('id') id: string,@User() user: IUser) {
+  getUserDetails(@Param('id') id: string, @User() user: IUser) {
     return this.chatService.getUserDetails(id, user._id);
   }
 
@@ -61,5 +61,14 @@ export class ChatController {
   @Get('user-conversations/:id')
   async getUserConversations(@Param('id') id: string, @User() user: IUser) {
     return this.chatService.getUserConversations(id, user._id);
+  }
+
+  @Post('message/:id')
+  async sendMessage(
+    @Param('id') id: string,
+    @Body() body: CreateChatDto,
+    @User() user: IUser,
+  ) {
+    return this.chatService.sendMessage(id, body, user._id);
   }
 }

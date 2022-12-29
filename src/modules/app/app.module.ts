@@ -9,13 +9,14 @@ import { AuthModule } from '../auth/auth.module';
 import { AuthService } from '../auth/auth.service';
 import { BookmarkModule } from '../bookmark/bookmark.module';
 import { CallModule } from '../call/call.module';
+import { ChannelModule } from '../channel/channel.module';
 import { ChatModule } from '../chat/chat.module';
 import { ContactModule } from '../contact/contact.module';
-import { Firebase } from '../firebase/providers/firebase';
+import { MongooseModule } from '@nestjs/mongoose';
+// import { Firebase } from '../firebase/providers/firebase';
 import { ProfileModule } from '../profile/profile.module';
 import { UserModule } from '../user/user.module';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ChannelModule } from '../channel/channel.module';
+
 const dotenv = require('dotenv');
 dotenv.config();
 @Module({
