@@ -12,6 +12,7 @@ import { CallModule } from '../call/call.module';
 import { ChannelModule } from '../channel/channel.module';
 import { ChatModule } from '../chat/chat.module';
 import { ContactModule } from '../contact/contact.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MongooseModule } from '@nestjs/mongoose';
 // import { Firebase } from '../firebase/providers/firebase';
 import { ProfileModule } from '../profile/profile.module';
@@ -33,6 +34,7 @@ dotenv.config();
       useNewUrlParser: true,
       useUnifiedTopology: true,
     }),
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [

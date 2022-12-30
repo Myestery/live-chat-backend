@@ -12,7 +12,7 @@ import {
 } from './entities/conversation.schema';
 import { IUser } from '../user/user.interface';
 import { User, UserDocument } from '../user/entities/user.schema';
-
+import { EventEmitter2 as EventEmitter } from '@nestjs/event-emitter';
 @Injectable()
 export class ChatService {
   constructor(
@@ -22,6 +22,7 @@ export class ChatService {
     private conversationModel: Model<ConversationDocument>,
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
+    private eventEmitter: EventEmitter
   ) {}
   create(createChatDto: CreateChatDto) {
     return [];
@@ -124,6 +125,7 @@ export class ChatService {
     });
     conversation.last_message = chat._id;
     await conversation.save();
+    this.eventEmitter.emit('new_chat', chat);
     return chat;
   }
 }
