@@ -22,16 +22,20 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Put('/update-password')
-  create(@Body() updatePasswordDto: UpdatePasswordDto,@User('uid') uid:string) {
-    return this.authService.updatePassword(updatePasswordDto,uid);
+  async updatePassword(
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @User('_id') uid: string,
+  ) {
+    await this.authService.updatePassword(updatePasswordDto, uid);
+    return {
+      statusCode: 200,
+      message: 'Password Updated Successfully',
+      data: {},
+    }
   }
 
   @Post('login')
-  async login(
-    @Body() loginForm: LoginDto,
-    @Req() req,
-    @Res() res
-  ) {
+  async login(@Body() loginForm: LoginDto, @Req() req, @Res() res) {
     let user = await this.authService.validateUser(loginForm);
     if (user) {
       let data = await this.authService.login(user);
@@ -41,11 +45,8 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(
-    @Body() registrationForm: CreateUserDto,
-    @Res() res
-  ) {
-    console.log("why?")
+  async register(@Body() registrationForm: CreateUserDto, @Res() res) {
+    console.log('why?');
     this.authService
       .createUser(registrationForm)
       .then(async (obj) => {

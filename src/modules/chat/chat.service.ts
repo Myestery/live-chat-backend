@@ -71,12 +71,13 @@ export class ChatService {
 
   async getUserDetails(id: string, myId: string): Promise<IUser> {
     let conversation = await this.conversationModel.findById<IConversation>(id);
+    if (!conversation) throw new HttpException('conversation not found', 404);
     let userId = (conversation.members as Array<unknown>).find(
       (member) => String(member) != String(myId),
     );
     const user = await this.userModel
       .findById(userId)
-      .select('name image_url')
+      .select('name image_url email')
       .exec();
     if (!user) throw new HttpException('User not found', 404);
     let name = user.toJSON().name;

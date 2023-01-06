@@ -25,8 +25,14 @@ export class AuthService {
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
   ) {}
 
-  updatePassword(updatePasswordDto: UpdatePasswordDto, uid: string) {
-    // return this.firebase.changePassword(uid, updatePasswordDto.password);
+  async updatePassword(updatePasswordDto: UpdatePasswordDto, uid: string) {
+    return await this.UserModel.findOneAndUpdate({
+      _id: uid,
+    }, {
+      // bcrypt password before saving
+      password: bcrypt.hashSync(updatePasswordDto.confirmpassword, 10),
+    });
+
   }
 
   async findOne(email: string, getPassword: boolean = false): Promise<IUser> {
