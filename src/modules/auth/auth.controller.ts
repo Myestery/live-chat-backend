@@ -31,7 +31,7 @@ export class AuthController {
       statusCode: 200,
       message: 'Password Updated Successfully',
       data: {},
-    }
+    };
   }
 
   @Post('login')

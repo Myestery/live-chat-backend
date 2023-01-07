@@ -8,7 +8,7 @@ import {
   ConnectedSocket,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Socket, Server} from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import { Chat } from './entities/chat.schema';
 // require('dotenv').config();
 @WebSocketGateway(4000, {
@@ -44,6 +44,50 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log('room created', room);
       return room;
     }
+  }
+
+  @SubscribeMessage('callUser')
+  callUser(
+    @MessageBody()
+    body: {
+      conversation_id: string;
+      receiver: string;
+      call_type: 'audio' | 'video';
+    },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.to(body.conversation_id).emit('receiveCall', body);
+    console.log('call initiated', body);
+  } 
+  
+  @SubscribeMessage('answerCall')
+  answerCall(
+    @MessageBody()
+    body: {
+      conversation_id: string;
+      receiver: string;
+      call_type: 'audio' | 'video';
+    },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.to(body.conversation_id).emit('callAnswered', body);
+    console.log('call initiated', body);
+  }
+
+  // hangUp
+
+  @SubscribeMessage('hangUp')
+  hangUp(
+    @MessageBody()
+    body: {
+      conversation_id: string;
+      receiver: string;
+      call_type: 'audio' | 'video';
+    },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.to(body.conversation_id).emit('callEnded', body);
+    console.log('call ended', body);
   }
 
   @OnEvent('new_chat')
