@@ -58,8 +58,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     client.to(body.conversation_id).emit('receiveCall', body);
     console.log('call initiated', body);
-  } 
-  
+  }
+
   @SubscribeMessage('answerCall')
   answerCall(
     @MessageBody()
@@ -88,6 +88,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     client.to(body.conversation_id).emit('callEnded', body);
     console.log('call ended', body);
+  }
+
+  @SubscribeMessage('toggleVideoStream')
+  toggleVideoStream(
+    @MessageBody()
+    body: {
+      conversation_id: string;
+      receiver: string;
+      call_type: 'audio' | 'video';
+    },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.to(body.conversation_id).emit('toggleVideoStream', body);
+    console.log('toggleVideoStream', body);
   }
 
   @OnEvent('new_chat')
